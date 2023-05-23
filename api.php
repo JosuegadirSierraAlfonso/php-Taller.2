@@ -1,35 +1,37 @@
 <?php
-    "Build the algorithm for a program that inputs three
-    grades of a student, if the average is less than or equal to 3.9
-    display a message 'Study', otherwise a message that
-    say 'scholarship'";
-
+    /* Given a number indicate if it is even or odd and if it is greater than 10 */
     header("Content-Type: application/json; charset:UTF-8");
     $_DATA = json_decode(file_get_contents("php://input"), true);
     $METHOD = $_SERVER["REQUEST_METHOD"];
 
     function validate($arg){
-        return ($arg<=3.9) ? "Estudie" : "becado";
+        return ($arg == 0) ? "Pair" : "Odd";
     }
+    function validatte($arg){
+        return ($arg > 10) ? "The number $arg is greather than 10" : "The number $arg is less than 10";
+    }
+    function algorithm(float $note1){   
+        $num = $note1 % 2;
+        return $num;
+    }
+    function algoritthm( float $note1){
+        return $note1;
+    }
+    try {
+    $res = match($METHOD){
+        "POST" => algorithm(...$_DATA)
+    };
+    $res2 = match($METHOD){
+        "POST" => algoritthm(...$_DATA)
+    };
+    }catch (\Throwable $th) {
+    $res = "ERROR";
+    $res2 = "ERROR";
+    };
 
-    function algorithm(float $note1, float $note2, float $note3){
-        $average = ($note1+$note2+$note3)/3;
-        return validate($average);
-
-    }
-    try{
-        $res = match($METHOD){
-            "POST" => algorithm(...$_DATA)
-        };
-    }catch (\throwable $th){
-        $res = "ERROR";
-    }
-    
     $message = (array) [
-        "message"=> validate($res),
-        "notes"=> $_DATA,
-        "average"=> $res 
+        "type"=> validate($res),
+        "validate" => validatte($res2)
     ];
     echo json_encode( $message,JSON_PRETTY_PRINT);
-
 ?>
