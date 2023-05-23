@@ -4,13 +4,19 @@ let config = {
     headers: myHeaders,
 };
 
-myFormulario.addEventListener("submit", async(e)=>{
-    e.preventDefault();
+let registration = [];
 
-    config.method = "POST";
-    let data = Object.fromEntries(new FormData(e.target));
-    config.body = JSON.stringify(data);
-    let res = await (await fetch("api.php", config)).text();
-    document.querySelector("pre").innerHTML = res;
-    console.log(res);
-})
+myFormulario.addEventListener("submit", async(e) => {
+    e.preventDefault();
+    let formData = new FormData(e.target);
+    let data = Object.fromEntries(formData);
+    registration.push(data); 
+    let res = await (await fetch("api.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(registration)
+    })).json();
+    document.querySelector("#resul").textContent = JSON.stringify(res, null, 2);
+});
