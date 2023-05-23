@@ -8,9 +8,36 @@
     $_DATA = json_decode(file_get_contents("php://input"), true);
     $METHOD = $_SERVER["REQUEST_METHOD"];
 
+    try {
+        $res = match ($METHOD) {
+            "POST" => algorithm(...$_DATA)
+        };
+    } catch (\Throwable $th) {
+        $res = "Error";
+    }
+    function algorithm()
+{
+    global $_DATA;
+
     $names = array_column($_DATA, 'name');
     $notes = array_column($_DATA, 'note');
     $registration = $_DATA;
+
+    foreach ($names as $name) {
+        if (!is_string($name) || empty(trim($name)) || !preg_match('/^[A-Za-z]+$/', $name)) {
+            $res = "Error, el nombre no puede ser numerico ni contener numeros";
+            echo json_encode($res, JSON_PRETTY_PRINT);
+            exit;
+        }
+    }
+
+    foreach ($notes as $note) {
+        if (!is_numeric($note)) {
+            $res = "Error: La nota debe ser numerica.";
+            echo json_encode($res, JSON_PRETTY_PRINT);
+            exit;
+        }
+    }
 
     $counterM = 0;
     $counterF = 0;
@@ -38,14 +65,6 @@
         "Note" => $minNote
     );
 
-    try {
-        $res = match ($METHOD) {
-            "POST" => algoritmo(...$_DATA)
-        };
-    } catch (\Throwable $th) {
-        $res = "Error";
-    }
-
     $message = array(
         "Students list" => $_DATA,
         "person with best score" => $personMaxNote,
@@ -53,6 +72,7 @@
         "male students" => $counterM,
         "female students" => $counterF
     );
-
     echo json_encode($message, JSON_PRETTY_PRINT);
+}
+    
 ?>
