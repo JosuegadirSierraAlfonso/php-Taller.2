@@ -1,63 +1,48 @@
 <?php
-    /* Program that requests the entry of the name and price of an item and the
-    quantity carried by the customer. Show what the buyer must pay
-    on your bill.*/
+    /* Program that enters by keyboard:
+    a. the value of the side of a square to display on the screen the
+    perimeter of the same
+    b. the base and height of a rectangle to show the area of the
+    same*/
     header("Content-Type: application/json; charset:UTF-8");
     $_DATA = json_decode(file_get_contents("php://input"), true);
     $METHOD = $_SERVER["REQUEST_METHOD"];
 
-    try {
-        $res = match ($METHOD) {
-            "POST" => algorithm()
-        };
-    } catch (\Throwable $th) {
-        $res = "Error";
-    };
-    
-    function algorithm()
-    {
-        global $_DATA;
-        $names = array_column($_DATA, 'nameP');
-        $prices = array_column($_DATA, 'price');
-        $amounts = array_column($_DATA, 'amount');
-        $registration = $_DATA;
-    
-        foreach ($names as $name) {
-            if (!is_string($name) || empty(trim($name)) || !preg_match('/^[A-Za-z]+$/', $name)) {
-                $res = "Error, el nombre no puede ser numerico ni contener numeros";
-                echo json_encode($res, JSON_PRETTY_PRINT);
-                exit;
-            }
+    if (is_numeric($_DATA['square']) && is_numeric($_DATA['heigth']) && is_numeric($_DATA['base'])) {
+        $square = $_DATA['square'];
+        $heigth = $_DATA['heigth'];
+        $base = $_DATA['base'];
+
+        function perimeter(float $square)
+        {
+            $perimeter = $square * 4;
+            return $perimeter;
         }
-        foreach ($prices as $price) {
-            if (!is_numeric($price)) {
-                $res = "Error: El precio debe ser numeric.";
-                echo json_encode($res, JSON_PRETTY_PRINT);
-                exit;
-            }
+
+        function area(float $heigth, float $base)
+        {
+            $area = $heigth * $base;
+            return $area;
         }
-        foreach ($amounts as $amount) {
-            if (!is_numeric($amount)) {
-                $res = "Error: La cantidad debe ser numerica.";
-                echo json_encode($res, JSON_PRETTY_PRINT);
-                exit;
-            }
+
+        try {
+            $res = match ($METHOD) {
+                "POST" => [
+                    "Perimeter of the square is:" => perimeter($square),
+                    "Height of the rectangle is:" => area($heigth, $base),
+                ],
+            };
+        } catch (\Throwable $th) {
+            $res = "Error";
         }
-    
-        $subtotally = array_map(function ($price, $amount) {
-            return $price * $amount;
-        }, $prices, $amounts);
-    
-        $totally = array_sum($subtotally);
-        $productsSubtotally = array_combine($names, $subtotally);
-    
+
         $message = array(
-            "Lista de Productos" => $_DATA,
-            "Productos" => $productsSubtotally,
-            "Total" => $totally
+            "Information" => $_DATA,
+            "Result" => $res,
         );
+
         echo json_encode($message, JSON_PRETTY_PRINT);
+    } else {
+        echo "Values must be numeric.";
     }
-    
-    
 ?>
